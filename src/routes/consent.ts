@@ -9,6 +9,8 @@ import {
 import { UserConsentCard } from "@ory/elements-markup"
 import bodyParser from "body-parser"
 import csrf from "csurf"
+import { env } from "process"
+import { URL } from "url"
 import { defaultConfig, RouteCreator, RouteRegistrator } from "../pkg"
 import { register404Route } from "./404"
 import { oidcConformityMaybeFakeSession } from "./stub/oidc-cert"
@@ -25,7 +27,7 @@ async function createOAuth2ConsentRequestSession(
 
   if (consentRequest.subject && grantScopes.length > 0) {
     const identity = (
-      await identityApi.getIdentity({ id: consentRequest.subject })
+      await identityApi.getIdentity({ id: consentRequest.subject, includeCredential: ['oidc'] })
     ).data
 
     if (grantScopes.indexOf("email") > -1) {
@@ -129,8 +131,15 @@ export const createConsentRoute: RouteCreator =
               },
             })
             .then(({ data: body }) => {
+              // TODO: Why don't these redirects get rewritten automatically when using the tunnel?
               // All we need to do now is to redirect the user back to hydra!
-              res.redirect(String(body.redirect_to))
+              const redirect = new URL(body.redirect_to);
+              if (process?.env?.HYDRA_PUBLIC_URL?.length !== -1) {
+                const adminUrl = new URL(process.env.HYDRA_PUBLIC_URL ?? '')
+                redirect.host = adminUrl.host;
+                redirect.protocol = adminUrl.protocol;
+              }
+              res.redirect(String(redirect.toString()))
             })
         }
 
@@ -172,7 +181,13 @@ export const createConsentPostRoute: RouteCreator =
           })
           .then(({ data: body }) => {
             // All we need to do now is to redirect the browser back to hydra!
-            res.redirect(String(body.redirect_to))
+            const redirect = new URL(body.redirect_to);
+            if (process?.env?.HYDRA_PUBLIC_URL?.length !== -1) {
+              const adminUrl = new URL(process.env.HYDRA_PUBLIC_URL ?? '')
+                redirect.host = adminUrl.host;
+                redirect.protocol = adminUrl.protocol;
+            }
+            res.redirect(String(redirect.toString()))
           })
           // This will handle any error that happens when making HTTP calls to hydra
           .catch(next)
@@ -237,7 +252,13 @@ export const createConsentPostRoute: RouteCreator =
           })
           .then(({ data: body }) => {
             // All we need to do now is to redirect the user back!
-            res.redirect(String(body.redirect_to))
+            const redirect = new URL(body.redirect_to);
+            if (process?.env?.HYDRA_PUBLIC_URL?.length !== -1) {
+              const adminUrl = new URL(process.env.HYDRA_PUBLIC_URL ?? '')
+              redirect.host = adminUrl.host;
+              redirect.protocol = adminUrl.protocol;
+            }
+            res.redirect(String(redirect.toString()))
           })
       })
       .catch(next)
