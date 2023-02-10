@@ -12,7 +12,7 @@ registration, account recovery, ... screens, please check out the
 
 ## Configuration
 
-This application can be configured using two environment variables:
+This application can be configured using the following environment variables:
 
 - `KRATOS_PUBLIC_URL` (required): The URL where ORY Kratos's Public API is
   located at. If this app and ORY Kratos are running in the same private
@@ -24,6 +24,8 @@ This application can be configured using two environment variables:
   `TLS_CERT_PATH` to enable HTTPS.
 - `KRATOS_BROWSER_URL` (optional) The browser accessible URL where ORY Kratos's
   public API is located, only needed if it differs from `KRATOS_PUBLIC_URL`
+- `ORY_PAT`: A personal access token, used to communicate with Ory's APIs
+- `HYDRA_PUBLIC_URL` The URL where ORY Hydra's Public API is located (APIs that will be used directly in the browser as redirects).
 
 This is the easiest mode as it requires no additional set up. This app runs on
 port `:4455` and ORY Kratos `KRATOS_PUBLIC_URL` URL.

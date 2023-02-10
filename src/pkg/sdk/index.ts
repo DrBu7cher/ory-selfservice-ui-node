@@ -24,30 +24,36 @@ const kratosBrowserUrl = process.env.KRATOS_BROWSER_URL || apiBaseFrontendUrl
 
 const hydraBaseOptions: any = {}
 
-if (process.env.MOCK_TLS_TERMINATION) {
+if (process.env.TLS_TERMINATION) {
   hydraBaseOptions.headers = { "X-Forwarded-Proto": "https" }
 }
 
 const baseConfig = new Configuration({
   basePath: apiBaseFrontendUrl,
+  baseOptions: hydraBaseOptions,
 })
 
 const frontendConfig = new Configuration({
   ...baseConfig,
+  baseOptions: hydraBaseOptions,
 })
 
 const identityConfig = new Configuration({
   ...baseConfig,
+  'accessToken': process.env.ORY_PAT,
   basePath: apiBaseIdentityUrl,
+  baseOptions: hydraBaseOptions,
 })
 
 const permissionsConfig = new Configuration({
   ...baseConfig,
   basePath: apiBasePermissionsUrlInternal,
+  baseOptions: hydraBaseOptions,
 })
 
 const oauth2Config = new Configuration({
   ...baseConfig,
+  'accessToken': process.env.ORY_PAT,
   basePath: apiBaseOauth2UrlInternal,
   baseOptions: hydraBaseOptions,
 })
